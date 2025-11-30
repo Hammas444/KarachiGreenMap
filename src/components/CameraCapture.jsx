@@ -209,38 +209,52 @@
 
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export default function CameraCapture({ onCapture }) {
+export default function CameraCapture() {
   const fileInputRef = useRef(null);
+  const [preview, setPreview] = useState(null);
 
+  // Open camera
   const openCamera = () => {
     fileInputRef.current.click();
   };
 
+  // When photo is taken
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const imgUrl = URL.createObjectURL(file);
-
-    if (onCapture) onCapture(file, imgUrl); // send blob + preview
+    setPreview(imgUrl);
   };
 
   return (
     <div className="space-y-3">
+      {/* Open Camera Button */}
       <Button onClick={openCamera}>📸 Take Photo</Button>
 
-      {/* Hidden input — opens camera only */}
+      {/* Hidden camera input */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"  // opens back camera directly
+        capture="environment"
         className="hidden"
         onChange={handleImage}
       />
+
+      {/* 👇 LIVE PREVIEW just below button */}
+      {preview && (
+        <div className="mt-3">
+          <img
+            src={preview}
+            alt="Captured"
+            className="w-full rounded-lg border shadow"
+          />
+        </div>
+      )}
     </div>
   );
 }
