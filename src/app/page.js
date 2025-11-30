@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import AuthWithMap from "./Pages/AuthForm/page";
 
 export default function Home() {
   return (
     <>
-     <Button variant="default" size="lg" className='justify-center items-center'>Default</Button>
+    <AuthWithMap />
     </>
   );
 }
