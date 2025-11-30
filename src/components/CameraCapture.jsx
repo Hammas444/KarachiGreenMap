@@ -97,107 +97,150 @@
 //     </div>
 //   );
 // }
+
+
+
+// "use client";
+
+// import { useRef, useState, useEffect } from "react";
+// import { Button } from "@/components/ui/button";
+
+// export default function CameraCapture({ onCapture }) {
+//   const videoRef = useRef(null);
+//   const canvasRef = useRef(null);
+//   const [stream, setStream] = useState(null);
+//   const [capturedImage, setCapturedImage] = useState(null);
+
+//   // Cleanup on unmount
+//   useEffect(() => {
+//     return () => stopCamera();
+//   }, []);
+
+//   const startCamera = async () => {
+//     try {
+//       const mediaStream = await navigator.mediaDevices.getUserMedia({
+//         video: { facingMode: "environment" }, // back camera on mobile
+//       });
+
+//       setStream(mediaStream);
+
+//       if (videoRef.current) {
+//         videoRef.current.srcObject = mediaStream;
+//         videoRef.current.play();
+//       }
+//     } catch (error) {
+//       console.error("Camera error:", error);
+//     }
+//   };
+
+//   const stopCamera = () => {
+//     if (stream) {
+//       stream.getTracks().forEach((t) => t.stop());
+//     }
+//     setStream(null);
+//   };
+
+//   const takePicture = () => {
+//     const video = videoRef.current;
+//     const canvas = canvasRef.current;
+
+//     canvas.width = video.videoWidth;
+//     canvas.height = video.videoHeight;
+
+//     const ctx = canvas.getContext("2d");
+//     ctx.drawImage(video, 0, 0);
+
+//     const img = canvas.toDataURL("image/png");
+//     setCapturedImage(img);
+//     stopCamera();
+
+//     if (onCapture) onCapture(img);
+//   };
+
+//   return (
+//     <div className="space-y-3">
+
+//       {/* START BUTTON */}
+//       {!stream && !capturedImage && (
+//         <Button onClick={startCamera}>📸 Open Camera</Button>
+//       )}
+
+//       {/* LIVE VIDEO */}
+//       {stream && (
+//         <div className="space-y-3">
+//           <video
+//             ref={videoRef}
+//             autoPlay
+//             playsInline
+//             muted   // REQUIRED for iPhone and Chrome autoplay
+//             className="w-full rounded-lg border"
+//           />
+//           <div className="flex gap-2">
+//             <Button onClick={takePicture}>✔ Capture</Button>
+//             <Button variant="destructive" onClick={stopCamera}>
+//               ✖ Stop
+//             </Button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* PREVIEW AFTER CAPTURE */}
+//       {capturedImage && (
+//         <div className="space-y-3">
+//           <img src={capturedImage} className="w-full rounded-lg border" />
+//           <div className="flex gap-2">
+//             <Button onClick={startCamera}>Retake</Button>
+//             <Button
+//               variant="destructive"
+//               onClick={() => setCapturedImage(null)}
+//             >
+//               Remove
+//             </Button>
+//           </div>
+//         </div>
+//       )}
+
+//       <canvas ref={canvasRef} className="hidden"></canvas>
+//     </div>
+//   );
+// }
+
+
+
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function CameraCapture({ onCapture }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [stream, setStream] = useState(null);
-  const [capturedImage, setCapturedImage] = useState(null);
+  const fileInputRef = useRef(null);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => stopCamera();
-  }, []);
-
-  const startCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // back camera on mobile
-      });
-
-      setStream(mediaStream);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
-      }
-    } catch (error) {
-      console.error("Camera error:", error);
-    }
+  const openCamera = () => {
+    fileInputRef.current.click();
   };
 
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-    }
-    setStream(null);
-  };
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const takePicture = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
+    const imgUrl = URL.createObjectURL(file);
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-
-    const img = canvas.toDataURL("image/png");
-    setCapturedImage(img);
-    stopCamera();
-
-    if (onCapture) onCapture(img);
+    if (onCapture) onCapture(file, imgUrl); // send blob + preview
   };
 
   return (
     <div className="space-y-3">
+      <Button onClick={openCamera}>📸 Take Photo</Button>
 
-      {/* START BUTTON */}
-      {!stream && !capturedImage && (
-        <Button onClick={startCamera}>📸 Open Camera</Button>
-      )}
-
-      {/* LIVE VIDEO */}
-      {stream && (
-        <div className="space-y-3">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted   // REQUIRED for iPhone and Chrome autoplay
-            className="w-full rounded-lg border"
-          />
-          <div className="flex gap-2">
-            <Button onClick={takePicture}>✔ Capture</Button>
-            <Button variant="destructive" onClick={stopCamera}>
-              ✖ Stop
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* PREVIEW AFTER CAPTURE */}
-      {capturedImage && (
-        <div className="space-y-3">
-          <img src={capturedImage} className="w-full rounded-lg border" />
-          <div className="flex gap-2">
-            <Button onClick={startCamera}>Retake</Button>
-            <Button
-              variant="destructive"
-              onClick={() => setCapturedImage(null)}
-            >
-              Remove
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <canvas ref={canvasRef} className="hidden"></canvas>
+      {/* Hidden input — opens camera only */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"  // opens back camera directly
+        className="hidden"
+        onChange={handleImage}
+      />
     </div>
   );
 }
