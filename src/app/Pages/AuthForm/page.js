@@ -245,6 +245,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import WorldMap from "@/components/ui/world-map";
+import Link from "next/link";
 
 export default function AuthWithMap() {
   const [isLogin, setIsLogin] = useState(false);
@@ -304,9 +305,10 @@ export default function AuthWithMap() {
               />
             </div>
 
-            <Button className="w-full mt-4" type="submit">
+            <Link href={'/Pages/UserDashboard'}><Button className="w-full mt-4" type="submit">
               {isLogin ? "Login" : "Sign Up"}
             </Button>
+            </Link>
           </form>
 
           {/* Toggle Link */}

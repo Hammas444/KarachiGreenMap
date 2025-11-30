@@ -31,13 +31,7 @@ export default function UserDashboardPage() {
         <IconUserBolt className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-    {
-      label: "Settings",
-      href: "#",
-      icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
+    
     {
       label: "Logout",
       href: "#",
@@ -114,7 +108,7 @@ export const Logo = () => {
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black text-3xl dark:text-white">
+        className="font-medium whitespace-pre text-black text-[23px] dark:text-white">
         Eco Karachi
       </motion.span>
     </a>
