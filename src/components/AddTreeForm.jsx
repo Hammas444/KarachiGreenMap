@@ -551,6 +551,9 @@
 //     </Dialog>
 //   );
 // }
+
+
+
 "use client";
 
 import { useState, useId, useEffect } from "react";
@@ -611,28 +614,54 @@ export default function AddTreeDialog({ open, setOpen }) {
   }, []);
 
   // Map click location picker
-  const LocationPicker = ({ location, setLocation, setAddress }) => {
-    const map = useMapEvents({
-      click: async (e) => {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-        setLocation([lat, lon]);
+ const LocationPicker = ({ location, setLocation, setAddress }) => {
+  const map = useMapEvents({
+    click: async (e) => {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
+      setLocation([lat, lon]);
 
-        try {
-          const res = await fetch(
-            `https://api.maptiler.com/geocoding/${lon},${lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-          );
-          const data = await res.json();
-          setAddress(data.features?.[0]?.place_name || "Address not found");
-        } catch (err) {
-          console.error(err);
-          setAddress("Error fetching address");
-        }
-      },
-    });
+      try {
+        const res = await fetch(
+          `https://api.maptiler.com/geocoding/${lon},${lat}.json?key=U61Q3cnFHasU5kc4OEcv`
+        );
+        const data = await res.json();
+        setAddress(data.features?.[0]?.place_name || "Address not found");
+      } catch (err) {
+        console.error(err);
+        setAddress("Error fetching address");
+      }
+    },
+  });
 
-    return location && LeafletReady ? <Marker position={location} draggable={true} /> : null;
-  };
+  if (!LeafletReady) return null;
+
+  return (
+    <Marker
+      position={location}
+      draggable={true}
+      eventHandlers={{
+        dragend: async (e) => {
+          const marker = e.target;
+          const pos = marker.getLatLng();
+          setLocation([pos.lat, pos.lng]); // Update coordinates input
+
+          try {
+            const res = await fetch(
+              `https://api.maptiler.com/geocoding/${pos.lng},${pos.lat}.json?key=U61Q3cnFHasU5kc4OEcv`
+            );
+            const data = await res.json();
+            setAddress(data.features?.[0]?.place_name || "Address not found"); // Update address input
+          } catch (err) {
+            console.error(err);
+            setAddress("Error fetching address");
+          }
+        },
+      }}
+    />
+  );
+};
+
 
   const fetchSuggestions = async (query) => {
     if (!query) return [];
