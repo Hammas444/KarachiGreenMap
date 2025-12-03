@@ -85,7 +85,7 @@ const slideData = [
             duration: 0.8,
             ease: "easeInOut",
           }}
-          className="mt-8 bg-linear-to-br from-emerald-400 to-green-600 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
+          className="mt-8 bg-linear-to-br from-white to-green-600 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
         >
          Mapping Karachi’s  <br /> Green Future
         </motion.h1>

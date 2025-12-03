@@ -189,8 +189,13 @@ export default function UserDashboardPage() {
       icon: (
         <IconPlant className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
-      onClick: () => setTreeDialogOpen(true),
+      onClick: () => {
       
+      setTreeDialogOpen(true),
+      setOpen(false)
+      
+      }
+         // 👈 CLOSE SIDEBAR
     },
     {
       label: "Profile",

@@ -45,6 +45,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 py-12 px-4">
       
+      
        <Link href="/Pages/UserDashboard" className="absolute top-5 left-5 z-50 flex items-center gap-2 rounded-md bg-white/80 px-3 py-2 shadow-md hover:bg-white dark:bg-neutral-800 dark:hover:bg-neutral-700 transition">
         <IconArrowLeft className="h-5 w-5 text-black dark:text-white" />
         <span className="text-black dark:text-white font-medium">Back</span>
@@ -191,7 +192,7 @@ export default function ProfilePage() {
 
               {/* Additional Info */}
               <div className="bg-linear-to-r from-violet-50 to-purple-50 rounded-xl p-6">
-                <div className="flex items-center gap-3 text-slate-700">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-slate-700">
                   <Calendar size={20} className="text-green-600" />
                   <span className="font-medium">Joined:</span>
                   {isEditing ? (
