@@ -193,7 +193,7 @@ export default function UserDashboardPage() {
       
       setTreeDialogOpen(true),
       setOpen(false)
-      
+
       }
          // 👈 CLOSE SIDEBAR
     },
@@ -280,7 +280,7 @@ export const Logo = () => (
     href="#"
     className="relative z-20 flex items-center justify-center space-x-2 py-1 text-sm font-normal text-black"
   >
-    <Image src="/tree.png" width={50} height={50} alt="Logo" />
+    <Image src="/Logo.png" width={50} height={50} alt="Logo" />
     <motion.span
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -296,7 +296,7 @@ export const LogoIcon = () => (
     href="#"
     className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
   >
-    <Image src="/tree.png" width={50} height={50} alt="Logo" />
+    <Image src="/Logo.png" width={50} height={50} alt="Logo" />
   </a>
 );
 
