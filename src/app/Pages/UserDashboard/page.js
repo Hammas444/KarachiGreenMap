@@ -166,13 +166,19 @@ import {
   IconArrowLeft,
   IconBrandTabler,
   IconUserBolt,
+  IconPlant
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import MapTilerMap from "@/components/MapTilerMap";
 import AddTreeDialog from "@/components/AddTreeForm";
+import { LampContainer } from "@/components/ui/lamp";
+import { Info } from "lucide-react";
+
 
 export default function UserDashboardPage() {
+
+
   const [open, setOpen] = useState(false);
   const [treeDialogOpen, setTreeDialogOpen] = useState(false);
 
@@ -181,15 +187,23 @@ export default function UserDashboardPage() {
       label: "Add Tree",
       href: "#",
       icon: (
-        <IconBrandTabler className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconPlant className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       onClick: () => setTreeDialogOpen(true),
+      
     },
     {
       label: "Profile",
-      href: "#",
+      href: "/Pages/Profile",
       icon: (
         <IconUserBolt className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+     {
+      label: "Info",
+      href: "/Pages/Info",
+      icon: (
+        <Info className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
@@ -221,37 +235,35 @@ export default function UserDashboardPage() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             {open ? <Logo /> : <LogoIcon />}
-            <div className="mt-8 flex flex-col gap-2">
-              {links.map((link) => (
-                <SidebarLink
-                  key={link.label}
-                  link={link}
-                  onClick={link.onClick}
-                />
-              ))}
-            </div>
-          </div>
-          <div>
-            <SidebarLink
-              link={{
-                href: "#",
-                icon: (
-                  <img
-                    src={user.avatar}
-                    className="h-7 w-7 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
+           <div className="flex flex-1 flex-col items-center justify-center gap-6">
+  {links.map((link) => (
+    <SidebarLink
+      key={link.label}
+      link={{
+        ...link,
+        label: (
+          <span className="text-2xl font-semibold block text-center">
+            {link.label}
+          </span>
+        ),
+        icon: React.cloneElement(link.icon, {
+          className: "h-7 w-7 text-neutral-800 dark:text-neutral-200",
+        }),
+      }}
+      onClick={link.onClick}
+      className="py-5 px-8"
+    />
+  ))}
+</div>
           </div>
         </SidebarBody>
       </Sidebar>
 
       {/* Memoized Dashboard so Map loads only once */}
       <Dashboard />
+
+
+  
 
       <AddTreeDialog open={treeDialogOpen} setOpen={setTreeDialogOpen} />
     </div>
@@ -261,7 +273,7 @@ export default function UserDashboardPage() {
 export const Logo = () => (
   <a
     href="#"
-    className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+    className="relative z-20 flex items-center justify-center space-x-2 py-1 text-sm font-normal text-black"
   >
     <Image src="/tree.png" width={50} height={50} alt="Logo" />
     <motion.span
@@ -286,10 +298,19 @@ export const LogoIcon = () => (
 // Memoized MapTilerMap Dashboard
 export const Dashboard = React.memo(() => {
   return (
+    <>
     <div className="flex flex-1">
       <div className="flex h-full w-full flex-2 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-10 dark:border-neutral-700 dark:bg-neutral-900">
         <MapTilerMap center={[24.8607, 67.0011]} zoom={14} />
+      
       </div>
     </div>
+     
+     </>
+
   );
 });
+
+
+
+

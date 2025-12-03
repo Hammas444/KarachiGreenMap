@@ -305,6 +305,17 @@ export default function AuthWithMap() {
               />
             </div>
 
+            {isLogin && (
+              <div className="flex justify-end">
+                <Link
+                  href="#"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+            )}
+
             <Link href={'/Pages/UserDashboard'}><Button className="w-full mt-4" type="submit">
               {isLogin ? "Login" : "Sign Up"}
             </Button>
