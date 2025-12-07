@@ -104,8 +104,11 @@ export default function AdminDashboard() {
 
   // Fetch data when component mounts (removed admin check for now)
   useEffect(() => { 
-    if (user) fetchData() 
-  }, [user, fetchData])
+    if (user) {
+      fetchData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const saveStatus = async (id) => {
     setSaving(true)
@@ -167,8 +170,8 @@ export default function AdminDashboard() {
 
       {!isAdmin && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
-          <strong>Note:</strong> You are viewing this page but your role is "{profile?.role || 'unknown'}". 
-          To get admin access, update your profile role in Supabase to "admin".
+          <strong>Note:</strong> You are viewing this page but your role is &quot;{profile?.role || 'unknown'}&quot;. 
+          To get admin access, update your profile role in Supabase to &quot;admin&quot;.
         </div>
       )}
 
@@ -209,6 +212,7 @@ export default function AdminDashboard() {
                     <TableCell>{tree.tree_name}</TableCell>
                     <TableCell>
                       {tree.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={tree.photo_url} alt="" className="w-12 h-12 object-cover rounded cursor-pointer hover:scale-110 transition" onClick={() => window.open(tree.photo_url, '_blank')} />
                       ) : (
                         <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center"><Trees className="w-6 h-6 text-gray-400" /></div>

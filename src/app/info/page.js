@@ -30,10 +30,10 @@ export default function InfoPage() {
       <div className="relative pt-32 pb-20 px-6 text-center">
         <div className="absolute inset-0 bg-gradient-to-b from-green-500/10 to-transparent" />
         <h1 className="relative text-5xl md:text-7xl font-bold bg-gradient-to-r from-white to-green-400 bg-clip-text text-transparent mb-6">
-          Mapping Karachi's<br />Green Future
+          Mapping Karachi&apos;s<br />Green Future
         </h1>
         <p className="relative text-xl text-slate-300 max-w-2xl mx-auto">
-          Join the movement to document and grow Karachi's urban forest. Every tree counts.
+          Join the movement to document and grow Karachi&apos;s urban forest. Every tree counts.
         </p>
       </div>
 
@@ -54,10 +54,11 @@ export default function InfoPage() {
 
       {/* Image Gallery */}
       <div className="px-6 py-16">
-        <h2 className="text-3xl font-bold text-center text-white mb-10">Karachi's Green Spaces</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-10">Karachi&apos;s Green Spaces</h2>
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((src, i) => (
             <div key={i} className="aspect-square rounded-xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt={`Green space ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition duration-500" />
             </div>
           ))}
@@ -85,7 +86,7 @@ export default function InfoPage() {
       {/* CTA */}
       <div className="px-6 py-20 text-center">
         <h2 className="text-3xl font-bold text-white mb-4">Ready to Plant?</h2>
-        <p className="text-slate-400 mb-8">Start documenting your contribution to Karachi's green future</p>
+        <p className="text-slate-400 mb-8">Start documenting your contribution to Karachi&apos;s green future</p>
         <Link href="/dashboard" className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg transition">
           Go to Dashboard
         </Link>

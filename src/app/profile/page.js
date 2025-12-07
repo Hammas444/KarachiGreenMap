@@ -118,6 +118,7 @@ export default function ProfilePage() {
               <div className="relative">
                 <div className="w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gradient-to-br from-[#2E7D32] to-[#AED581]">
                   {form.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={form.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white text-5xl font-bold">{initials}</div>

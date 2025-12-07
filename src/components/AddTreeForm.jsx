@@ -110,6 +110,7 @@ export default function AddTreeDialog({ open, setOpen, onTreeAdded }) {
     }
   }, [open])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchLocation = useCallback(debounce(async (q) => {
     if (q.length < 3) return setSuggestions([])
     try {
@@ -254,6 +255,7 @@ export default function AddTreeDialog({ open, setOpen, onTreeAdded }) {
             {showCamera && <LiveCamera onCapture={img => { setPhoto(img); setShowCamera(false) }} onClose={() => setShowCamera(false)} />}
             {photo && (
               <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photo} alt="Tree" className="w-full h-48 object-cover rounded-lg border-2 border-green-500" />
                 {!saving && (
                   <button onClick={() => setPhoto(null)} className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700">

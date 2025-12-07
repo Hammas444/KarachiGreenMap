@@ -76,7 +76,8 @@ export default function UserDashboardPage() {
     }
   }, [user, supabase])
 
-  useEffect(() => { fetchTrees() }, [fetchTrees])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchTrees() }, [user, supabase])
 
   const handleLogout = async () => {
     await signOut()
