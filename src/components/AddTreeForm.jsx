@@ -1,1278 +1,312 @@
-// "use client";
-// import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { useId } from "react";
-// import { useCharacterLimit } from "@/hooks/use-character-limit";
-// import { useFileUpload } from "@/hooks/use-file-upload";
-// import { Label } from "@/components/ui/label";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-// import { CheckIcon, ImagePlusIcon, XIcon } from "lucide-react";
-// import CameraCapture from "@/components/CameraCapture";
-// export default function AddTreeDialog({ open, setOpen }) {
-//   const id = useId();
-//   const maxLength = 180;
-
-//   const {
-//     value,
-//     characterCount,
-//     handleChange,
-//     maxLength: limit,
-//   } = useCharacterLimit({
-//     initialValue: "",
-//     maxLength,
-//   });
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg">
-//         <DialogHeader>
-//           <DialogTitle className="border-b px-6 py-4 text-base">
-//             Add a New Tree
-//           </DialogTitle>
-//         </DialogHeader>
-
-//         <div className="overflow-y-auto">
-//           {/* You can include ProfileBg or Avatar here if needed */}
-          
-//           <div className="px-6 pt-4 pb-6">
-//             <form className="space-y-4">
-//                      <div className="space-y-2">
-//                 <Label>User Name</Label>
-//                 <Input placeholder="your name" required />
-//               </div>
-//               <div className="space-y-2">
-//                 <Label>Tree Name</Label>
-//                 <Input placeholder="Neem, Banyan, etc." required />
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Description</Label>
-//                 <Textarea
-//                   maxLength={180}
-//                   onChange={handleChange}
-//                   placeholder="Details about the tree..."
-//                 />
-//                 <p className="text-right text-xs text-muted-foreground">
-//                   {limit - characterCount} characters left
-//                 </p>
-//               </div>
-//               <div className="space-y-2">
-//   <Label>Tree Photo (Camera)</Label>
-
-//   <CameraCapture 
-//     onCapture={(img) => console.log("Captured Image:", img)}
-//   />
-// </div>
-//             </form>
-//           </div>
-//         </div>
-
-//         <DialogFooter className="border-t px-6 py-4">
-//           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-//           <Button onClick={() => setOpen(false)}>Save</Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-// "use client";
-// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { useId, useState } from "react";
-// import { useCharacterLimit } from "@/hooks/use-character-limit";
-// import CameraCapture from "@/components/CameraCapture";
-// import { Label } from "@/components/ui/label";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-
-// import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-// import "leaflet/dist/leaflet.css";
-// import L from "leaflet";
-
-// // Fix default Leaflet icon issues
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-//   iconUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-//   shadowUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-// });
-
-// // Component to handle marker and reverse geocoding
-// function LocationPicker({ location, setLocation, setAddress }) {
-//   useMapEvents({
-//     click: async (e) => {
-//       const lat = e.latlng.lat;
-//       const lon = e.latlng.lng;
-//       setLocation([lat, lon]);
-
-//       // Reverse geocode using Nominatim
-//       try {
-//         const res = await fetch(
-//           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-//         );
-//         const data = await res.json();
-//         setAddress(data.display_name || "Address not found");
-//       } catch (err) {
-//         console.error(err);
-//         setAddress("Error fetching address");
-//       }
-//     },
-//   });
-
-//   return location ? <Marker position={location} /> : null;
-// }
-
-// export default function AddTreeDialog({ open, setOpen }) {
-//   const id = useId();
-//   const maxLength = 180;
-
-//   const { value, characterCount, handleChange, maxLength: limit } =
-//     useCharacterLimit({
-//       initialValue: "",
-//       maxLength,
-//     });
-
-//   const [treeLocation, setTreeLocation] = useState([24.8607, 67.0011]); // Default location
-//   const [treeAddress, setTreeAddress] = useState(""); // Selected address
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [suggestions, setSuggestions] = useState([]);
-
-//   const fetchSuggestions = async (query) => {
-//     if (!query) return [];
-//     try {
-//       const res = await fetch(
-//         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-//           query
-//         )}&addressdetails=1&limit=5`
-//       );
-//       const data = await res.json();
-//       return data.map((place) => ({
-//         label: place.display_name,
-//         lat: parseFloat(place.lat),
-//         lon: parseFloat(place.lon),
-//       }));
-//     } catch (err) {
-//       console.error(err);
-//       return [];
-//     }
-//   };
-
-//   const handleInputChange = async (e) => {
-//     const value = e.target.value;
-//     setSearchQuery(value);
-//     if (value.length > 2) {
-//       const results = await fetchSuggestions(value);
-//       setSuggestions(results);
-//     } else {
-//       setSuggestions([]);
-//     }
-//   };
-
-//   const handleSelectSuggestion = (s) => {
-//     setTreeLocation([s.lat, s.lon]);
-//     setTreeAddress(s.label);
-//     setSearchQuery(s.label);
-//     setSuggestions([]);
-//   };
-
-//   const handleSave = () => {
-//     console.log("Tree Data:", {
-//       treeName: document.getElementById("treeName").value,
-//       userName: document.getElementById("userName").value,
-//       description: value,
-//       location: treeLocation,
-//       address: treeAddress,
-//     });
-//     setOpen(false);
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg">
-//         <DialogHeader>
-//           <DialogTitle className="border-b px-6 py-4 text-base">
-//             Add a New Tree
-//           </DialogTitle>
-//         </DialogHeader>
-
-//         <div className="overflow-y-auto">
-//           <div className="px-6 pt-4 pb-6">
-//             <form className="space-y-4">
-//               <div className="space-y-2">
-//                 <Label>User Name</Label>
-//                 <Input id="userName" placeholder="Your name" required />
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Tree Name</Label>
-//                 <Input id="treeName" placeholder="Neem, Banyan, etc." required />
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Description</Label>
-//                 <Textarea
-//                   maxLength={maxLength}
-//                   onChange={handleChange}
-//                   placeholder="Details about the tree..."
-//                 />
-//                 <p className="text-right text-xs text-muted-foreground">
-//                   {limit - characterCount} characters left
-//                 </p>
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Tree Photo (Camera)</Label>
-//                 <CameraCapture onCapture={(img) => console.log("Captured Image:", img)} />
-//               </div>
-
-//               {/* Search bar for location */}
-//               <div className="space-y-2 relative z-50">
-//                 <Label>Search Tree Location</Label>
-//                 <Input
-//                   type="text"
-//                   placeholder="Search for zoo, park, office..."
-//                   value={searchQuery}
-//                   onChange={handleInputChange}
-//                 />
-//                 {suggestions.length > 0 && (
-//                   <ul className="absolute w-full bg-white border rounded mt-1 max-h-40 overflow-auto z-50">
-//                     {suggestions.map((s, idx) => (
-//                       <li
-//                         key={idx}
-//                         onClick={() => handleSelectSuggestion(s)}
-//                         className="p-2 cursor-pointer hover:bg-gray-100"
-//                       >
-//                         {s.label}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 )}
-//               </div>
-
-//               {/* Address input */}
-//               <div className="space-y-2">
-//                 <Label>Selected Address</Label>
-//                 <Input
-//                   value={treeAddress}
-//                   readOnly
-//                   placeholder="Selected address will appear here"
-//                   className="bg-gray-100 cursor-not-allowed"
-//                 />
-//               </div>
-
-//               {/* Map */}
-//               <div className="space-y-2">
-//                 <Label>Pick Tree Location on Map</Label>
-//                 <p className="text-xs text-muted-foreground">
-//                   Click on the map to select location
-//                 </p>
-//               <MapContainer
-//   center={treeLocation}
-//   zoom={13}
-//   style={{ height: "200px", width: "100%" }}
-// >
-//   <TileLayer
-//     url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=U61Q3cnFHasU5kc4OEcv`}
-//     attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> © OpenStreetMap contributors'
-//   />
-//   <LocationPicker
-//     location={treeLocation}
-//     setLocation={setTreeLocation}
-//     setAddress={setTreeAddress}
-//   />
-// </MapContainer>
-
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-
-//         <DialogFooter className="border-t px-6 py-4">
-//           <Button variant="outline" onClick={() => setOpen(false)}>
-//             Cancel
-//           </Button>
-//           <Button onClick={handleSave}>Save</Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-// "use client";
-// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { useId, useState } from "react";
-// import { useCharacterLimit } from "@/hooks/use-character-limit";
-// import CameraCapture from "@/components/CameraCapture";
-// import { Label } from "@/components/ui/label";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-
-// import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-// import "leaflet/dist/leaflet.css";
-// import L from "leaflet";
-
-// // Fix default Leaflet icon issues
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-//   iconUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-//   shadowUrl:
-//     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-// });
-
-// // Debounce function (super important!)
-// function debounce(fn, delay = 400) {
-//   let timer;
-//   return (...args) => {
-//     clearTimeout(timer);
-//     timer = setTimeout(() => fn(...args), delay);
-//   };
-// }
-
-// // Map click location picker
-// function LocationPicker({ location, setLocation, setAddress }) {
-//   useMapEvents({
-//     click: async (e) => {
-//       const lat = e.latlng.lat;
-//       const lon = e.latlng.lng;
-//       setLocation([lat, lon]);
-
-//       try {
-//         const res = await fetch(
-//           `https://api.maptiler.com/geocoding/${lon},${lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-//         );
-//         const data = await res.json();
-//         setAddress(data.features?.[0]?.place_name || "Address not found");
-//       } catch (err) {
-//         console.error(err);
-//         setAddress("Error fetching address");
-//       }
-//     },
-//   });
-
-//   return location ? <Marker position={location} /> : null;
-// }
-
-// export default function AddTreeDialog({ open, setOpen }) {
-//   const id = useId();
-//   const maxLength = 180;
-
-//   const { value, characterCount, handleChange, maxLength: limit } =
-//     useCharacterLimit({
-//       initialValue: "",
-//       maxLength,
-//     });
-
-//   const [treeLocation, setTreeLocation] = useState([24.8607, 67.0011]);
-//   const [treeAddress, setTreeAddress] = useState("");
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [suggestions, setSuggestions] = useState([]);
-
-//   // --- FAST MapTiler Geocoding ---
-//   const fetchSuggestions = async (query) => {
-//     if (!query) return [];
-//     try {
-//       const res = await fetch(
-//         `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=U61Q3cnFHasU5kc4OEcv&limit=5`
-//       );
-//       const data = await res.json();
-
-//       return data.features.map((place) => ({
-//         label: place.place_name,
-//         lat: place.geometry.coordinates[1],
-//         lon: place.geometry.coordinates[0],
-//       }));
-//     } catch (err) {
-//       console.error(err);
-//       return [];
-//     }
-//   };
-
-//   // Debounced search (FAST)
-//   const debouncedSearch = debounce(async (value) => {
-//     if (value.length > 2) {
-//       const results = await fetchSuggestions(value);
-//       setSuggestions(results);
-//     } else {
-//       setSuggestions([]);
-//     }
-//   }, 300);
-
-//   const handleInputChange = (e) => {
-//     const value = e.target.value;
-//     setSearchQuery(value);
-//     debouncedSearch(value);
-//   };
-
-//   const handleSelectSuggestion = (s) => {
-//     setTreeLocation([s.lat, s.lon]);
-//     setTreeAddress(s.label);
-//     setSearchQuery(s.label);
-//     setSuggestions([]);
-//   };
-
-//   const handleSave = () => {
-//     console.log("Tree Data:", {
-//       treeName: document.getElementById("treeName").value,
-//       userName: document.getElementById("userName").value,
-//       description: value,
-//       location: treeLocation,
-//       address: treeAddress,
-//     });
-//     setOpen(false);
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg">
-//         <DialogHeader>
-//           <DialogTitle className="border-b px-6 py-4 text-base">
-//             Add a New Tree
-//           </DialogTitle>
-//         </DialogHeader>
-
-//         <div className="overflow-y-auto">
-//           <div className="px-6 pt-4 pb-6">
-//             <form className="space-y-4">
-//               <div className="space-y-2">
-//                 <Label>User Name</Label>
-//                 <Input id="userName" placeholder="Your name" required />
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Tree Name</Label>
-//                 <Input id="treeName" placeholder="Neem, Banyan, etc." required />
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Description</Label>
-//                 <Textarea
-//                   maxLength={maxLength}
-//                   onChange={handleChange}
-//                   placeholder="Details about the tree..."
-//                 />
-//                 <p className="text-right text-xs text-muted-foreground">
-//                   {limit - characterCount} characters left
-//                 </p>
-//               </div>
-
-//               <div className="space-y-2">
-//                 <Label>Tree Photo (Camera)</Label>
-//                 <CameraCapture onCapture={(img) => console.log("Captured Image:", img)} />
-//               </div>
-
-//               {/* Search bar for location */}
-//               <div className="space-y-2 relative z-50">
-//                 <Label>Search Tree Location</Label>
-//                 <Input
-//                   type="text"
-//                   placeholder="Search for park, zoo, office..."
-//                   value={searchQuery}
-//                   onChange={handleInputChange}
-//                 />
-//                 {suggestions.length > 0 && (
-//                   <ul className="absolute w-full bg-white border rounded mt-1 max-h-40 overflow-auto z-50">
-//                     {suggestions.map((s, idx) => (
-//                       <li
-//                         key={idx}
-//                         onClick={() => handleSelectSuggestion(s)}
-//                         className="p-2 cursor-pointer hover:bg-gray-100"
-//                       >
-//                         {s.label}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 )}
-//               </div>
-
-//               {/* Address input */}
-//               <div className="space-y-2">
-//                 <Label>Selected Address</Label>
-//                 <Input
-//                   value={treeAddress}
-//                   readOnly
-//                   placeholder="Selected address will appear here"
-//                   className="bg-gray-100 cursor-not-allowed"
-//                 />
-//               </div>
-//               <div className="space-y-2">
-//                <Label>Coordinates (Lat, Lon)</Label>
-//                <Input
-//                 value={`${treeLocation[0].toFixed(6)}, ${treeLocation[1].toFixed(6)}`}
-//                 readOnly
-//                 placeholder="Latitude, Longitude will appear here"
-//                 className="bg-gray-100 cursor-not-allowed"
-//                />
-//              </div>
-//               {/* Map */}
-//               <div className="space-y-2">
-//                 <Label>Pick Tree Location on Map</Label>
-//                 <p className="text-xs text-muted-foreground">
-//                   Click on the map to select location
-//                 </p>
-
-//                 <MapContainer
-//                   center={treeLocation}
-//                   zoom={13}
-//                   style={{ height: "200px", width: "100%" }}
-//                 >
-//                   <TileLayer
-//                     url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=U61Q3cnFHasU5kc4OEcv`}
-//                     attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> © OpenStreetMap contributors'
-//                   />
-//                   <LocationPicker
-//                     location={treeLocation}
-//                     setLocation={setTreeLocation}
-//                     setAddress={setTreeAddress}
-//                   />
-//                 </MapContainer>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-
-//         <DialogFooter className="border-t px-6 py-4">
-//           <Button variant="outline" onClick={() => setOpen(false)}>
-//             Cancel
-//           </Button>
-//           <Button onClick={handleSave}>Save</Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-
-// "use client";
-
-// import { useState, useId, useEffect } from "react";
-// import dynamic from "next/dynamic";
-// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { Label } from "@/components/ui/label";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-// import CameraCapture from "@/components/CameraCapture";
-// import { useCharacterLimit } from "@/hooks/use-character-limit";
-
-// // Dynamically import react-leaflet components to prevent SSR issues
-// const MapContainer = dynamic(() => import("react-leaflet").then(mod => mod.MapContainer), { ssr: false });
-// const TileLayer = dynamic(() => import("react-leaflet").then(mod => mod.TileLayer), { ssr: false });
-// const Marker = dynamic(() => import("react-leaflet").then(mod => mod.Marker), { ssr: false });
-// const useMapEvents = dynamic(() => import("react-leaflet").then(mod => mod.useMapEvents), { ssr: false });
-
-// // Debounce helper
-// function debounce(fn, delay = 400) {
-//   let timer;
-//   return (...args) => {
-//     clearTimeout(timer);
-//     timer = setTimeout(() => fn(...args), delay);
-//   };
-// }
-
-// export default function AddTreeDialog({ open, setOpen }) {
-//   const id = useId();
-//   const maxLength = 180;
-//   const { value, characterCount, handleChange, maxLength: limit } = useCharacterLimit({
-//     initialValue: "",
-//     maxLength,
-//   });
-
-//   const [treeLocation, setTreeLocation] = useState([24.8607, 67.0011]);
-//   const [treeAddress, setTreeAddress] = useState("");
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [suggestions, setSuggestions] = useState([]);
-//   const [LeafletReady, setLeafletReady] = useState(false);
-//   const [L, setLeaflet] = useState(null);
-
-//   // Import Leaflet only on client
-//   useEffect(() => {
-//     import("leaflet").then((leaflet) => {
-//       delete leaflet.Icon.Default.prototype._getIconUrl;
-//       leaflet.Icon.Default.mergeOptions({
-//         iconRetinaUrl:
-//           "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-//         iconUrl:
-//           "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-//         shadowUrl:
-//           "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-//       });
-//       setLeaflet(leaflet);
-//       setLeafletReady(true);
-//     });
-//   }, []);
-
-//   // Map click location picker
-//  const LocationPicker = ({ location, setLocation, setAddress }) => {
-//   const map = useMapEvents({
-//     click: async (e) => {
-//       const lat = e.latlng.lat;
-//       const lon = e.latlng.lng;
-//       setLocation([lat, lon]);
-
-//       try {
-//         const res = await fetch(
-//           `https://api.maptiler.com/geocoding/${lon},${lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-//         );
-//         const data = await res.json();
-//         setAddress(data.features?.[0]?.place_name || "Address not found");
-//       } catch (err) {
-//         console.error(err);
-//         setAddress("Error fetching address");
-//       }
-//     },
-//   });
-
-//   if (!LeafletReady) return null;
-
-//   return (
-//     <Marker
-//       position={location}
-//       draggable={true}
-//       eventHandlers={{
-//         dragend: async (e) => {
-//           const marker = e.target;
-//           const pos = marker.getLatLng();
-//           setLocation([pos.lat, pos.lng]); // Update coordinates input
-
-//           try {
-//             const res = await fetch(
-//               `https://api.maptiler.com/geocoding/${pos.lng},${pos.lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-//             );
-//             const data = await res.json();
-//             setAddress(data.features?.[0]?.place_name || "Address not found"); // Update address input
-//           } catch (err) {
-//             console.error(err);
-//             setAddress("Error fetching address");
-//           }
-//         },
-//       }}
-//     />
-//   );
-// };
-
-
-//   const fetchSuggestions = async (query) => {
-//     if (!query) return [];
-//     try {
-//       const res = await fetch(
-//         `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=U61Q3cnFHasU5kc4OEcv&limit=5`
-//       );
-//       const data = await res.json();
-//       return data.features.map(place => ({
-//         label: place.place_name,
-//         lat: place.geometry.coordinates[1],
-//         lon: place.geometry.coordinates[0],
-//       }));
-//     } catch (err) {
-//       console.error(err);
-//       return [];
-//     }
-//   };
-
-//   const debouncedSearch = debounce(async (value) => {
-//     if (value.length > 2) {
-//       const results = await fetchSuggestions(value);
-//       setSuggestions(results);
-//     } else {
-//       setSuggestions([]);
-//     }
-//   }, 300);
-
-//   const handleInputChange = (e) => {
-//     const value = e.target.value;
-//     setSearchQuery(value);
-//     debouncedSearch(value);
-//   };
-
-//   const handleSelectSuggestion = (s) => {
-//     setTreeLocation([s.lat, s.lon]);
-//     setTreeAddress(s.label);
-//     setSearchQuery(s.label);
-//     setSuggestions([]);
-//   };
-
-//   const handleSave = () => {
-//     console.log("Tree Data:", {
-//       treeName: document.getElementById("treeName").value,
-//       userName: document.getElementById("userName").value,
-//       description: value,
-//       location: treeLocation,
-//       address: treeAddress,
-//     });
-//     setOpen(false);
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg">
-//         <DialogHeader>
-//           <DialogTitle className="border-b px-6 py-4 text-base">
-//             Add a New Tree
-//           </DialogTitle>
-//         </DialogHeader>
-
-//         <div className="overflow-y-auto px-6 pt-4 pb-6">
-//           <form className="space-y-4">
-//             <div className="space-y-2">
-//               <Label>User Name</Label>
-//               <Input id="userName" placeholder="Your name" required />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Tree Name</Label>
-//               <Input id="treeName" placeholder="Neem, Banyan, etc." required />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Description</Label>
-//               <Textarea
-//                 maxLength={maxLength}
-//                 onChange={handleChange}
-//                 placeholder="Details about the tree..."
-//               />
-//               <p className="text-right text-xs text-muted-foreground">
-//                 {limit - characterCount} characters left
-//               </p>
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Tree Photo (Camera)</Label>
-//               <CameraCapture onCapture={(img) => console.log("Captured Image:", img)} />
-//             </div>
-
-//             <div className="space-y-2 relative z-50">
-//               <Label>Search Tree Location</Label>
-//               <Input
-//                 type="text"
-//                 placeholder="Search for park, zoo, office..."
-//                 value={searchQuery}
-//                 onChange={handleInputChange}
-//               />
-//               {suggestions.length > 0 && (
-//                 <ul className="absolute w-full bg-white border rounded mt-1 max-h-40 overflow-auto z-50">
-//                   {suggestions.map((s, idx) => (
-//                     <li
-//                       key={idx}
-//                       onClick={() => handleSelectSuggestion(s)}
-//                       className="p-2 cursor-pointer hover:bg-gray-100"
-//                     >
-//                       {s.label}
-//                     </li>
-//                   ))}
-//                 </ul>
-//               )}
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Selected Address</Label>
-//               <Input
-//                 value={treeAddress}
-//                 readOnly
-//                 placeholder="Selected address will appear here"
-//                 className="bg-gray-100 cursor-not-allowed"
-//               />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label>Coordinates</Label>
-//               <Input
-//                 value={`${treeLocation[0]}, ${treeLocation[1]}`}
-//                 readOnly
-//                 className="bg-gray-100 cursor-not-allowed"
-//               />
-//             </div>
-
-//             {LeafletReady && (
-//               <div className="space-y-2">
-//                 <Label>Pick Tree Location on Map</Label>
-//                 <p className="text-xs text-muted-foreground">
-//                   Click on the map to select location
-//                 </p>
-
-//                 <MapContainer
-//                   center={treeLocation}
-//                   zoom={13}
-//                   style={{ height: "200px", width: "100%" }}
-//                 >
-//                   <TileLayer
-//                     url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=U61Q3cnFHasU5kc4OEcv`}
-//                     attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> © OpenStreetMap contributors'
-//                   />
-//                   <LocationPicker
-//                     location={treeLocation}
-//                     setLocation={setTreeLocation}
-//                     setAddress={setTreeAddress}
-//                   />
-//                 </MapContainer>
-//               </div>
-//             )}
-//           </form>
-//         </div>
-
-//         <DialogFooter className="border-t px-6 py-4">
-//           <Button variant="outline" onClick={() => setOpen(false)}>
-//             Cancel
-//           </Button>
-//           <Button onClick={handleSave}>Save</Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-
-
-"use client";
-
-import { useState, useId, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useCharacterLimit } from "@/hooks/use-character-limit";
-import { Camera, X } from "lucide-react";
-
-// Dynamically import react-leaflet components to prevent SSR issues
-const MapContainer = dynamic(() => import("react-leaflet").then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import("react-leaflet").then(mod => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import("react-leaflet").then(mod => mod.Marker), { ssr: false });
-const useMapEvents = dynamic(() => import("react-leaflet").then(mod => mod.useMapEvents), { ssr: false });
+'use client'
+
+import { useState, useEffect, useCallback, useRef, memo } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Camera, X, Loader2 } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
+import QRCode from 'qrcode'
+
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY || 'U61Q3cnFHasU5kc4OEcv'
+const DEFAULT_LOCATION = [24.8607, 67.0011]
 
 // Debounce helper
-function debounce(fn, delay = 400) {
-  let timer;
+const debounce = (fn, ms = 300) => {
+  let timer
   return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), ms)
+  }
 }
 
 // Live Camera Component
-function LiveCamera({ onCapture, onClose }) {
-  const videoRef = useRef(null);
-  const [stream, setStream] = useState(null);
-  const [error, setError] = useState(null);
+const LiveCamera = memo(({ onCapture, onClose }) => {
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
 
   useEffect(() => {
-    const startCamera = async () => {
+    const start = async () => {
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false
-        });
-        setStream(mediaStream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch (err) {
-        console.error("Camera error:", err);
-        setError("Unable to access camera. Please check permissions.");
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+        streamRef.current = stream
+        if (videoRef.current) videoRef.current.srcObject = stream
+      } catch (e) {
+        console.error('Camera error:', e)
+        onClose()
       }
-    };
-
-    startCamera();
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  const capturePhoto = () => {
-    if (videoRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoRef.current, 0, 0);
-      const imageData = canvas.toDataURL('image/jpeg');
-      
-      // Stop the stream
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      
-      onCapture(imageData);
     }
-  };
+    start()
+    return () => streamRef.current?.getTracks().forEach(t => t.stop())
+  }, [onClose])
 
-  const handleClose = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    onClose();
-  };
-
-  if (error) {
-    return (
-      <div className="bg-gray-100 rounded-lg p-6 text-center">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Button onClick={handleClose} variant="outline">Close</Button>
-      </div>
-    );
+  const capture = () => {
+    const video = videoRef.current
+    if (!video) return
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d').drawImage(video, 0, 0)
+    onCapture(canvas.toDataURL('image/jpeg', 0.8))
+    streamRef.current?.getTracks().forEach(t => t.stop())
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative bg-black rounded-lg overflow-hidden">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="w-full h-64 object-cover"
-        />
-        <button
-          onClick={handleClose}
-          className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
-        >
-          <X size={20} />
-        </button>
-      </div>
-      <div className="flex gap-2">
-        <Button onClick={capturePhoto} className="flex-1 flex items-center gap-2">
-          <Camera size={18} />
-          Capture Photo
-        </Button>
-        <Button onClick={handleClose} variant="outline">
-          Cancel
-        </Button>
+    <div className="relative rounded-lg overflow-hidden bg-black">
+      <video ref={videoRef} autoPlay playsInline className="w-full h-64 object-cover" />
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+        <Button onClick={capture} className="bg-green-600 hover:bg-green-700"><Camera className="mr-2 h-4 w-4" />Capture</Button>
+        <Button variant="outline" onClick={onClose} className="bg-white/90">Cancel</Button>
       </div>
     </div>
-  );
-}
+  )
+})
+LiveCamera.displayName = 'LiveCamera'
 
-export default function AddTreeDialog({ open, setOpen }) {
-  const id = useId();
-  const maxLength = 180;
-  const { value, characterCount, handleChange, maxLength: limit } = useCharacterLimit({
-    initialValue: "",
-    maxLength,
-  });
+// Location picker for Leaflet
+let LeafletComponents = null
 
-  const [treeLocation, setTreeLocation] = useState([24.8607, 67.0011]);
-  const [treeAddress, setTreeAddress] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [LeafletReady, setLeafletReady] = useState(false);
-  const [L, setLeaflet] = useState(null);
-  
-  // Camera states
-  const [showCamera, setShowCamera] = useState(false);
-  const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const [photoTimestamp, setPhotoTimestamp] = useState(null);
+export default function AddTreeDialog({ open, setOpen, onTreeAdded }) {
+  const { user, profile, supabase } = useAuth()
+  const [treeName, setTreeName] = useState('')
+  const [description, setDescription] = useState('')
+  const [photo, setPhoto] = useState(null)
+  const [showCamera, setShowCamera] = useState(false)
+  const [location, setLocation] = useState(DEFAULT_LOCATION)
+  const [address, setAddress] = useState('')
+  const [search, setSearch] = useState('')
+  const [suggestions, setSuggestions] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(false)
+  const [leafletReady, setLeafletReady] = useState(false)
 
-  // Import Leaflet only on client
+  // Load Leaflet dynamically
   useEffect(() => {
-    import("leaflet").then((leaflet) => {
-      delete leaflet.Icon.Default.prototype._getIconUrl;
-      leaflet.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-        iconUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-      });
-      setLeaflet(leaflet);
-      setLeafletReady(true);
-    });
-  }, []);
+    if (typeof window === 'undefined') return
+    import('react-leaflet').then(mod => {
+      LeafletComponents = mod
+      import('leaflet').then(L => {
+        delete L.Icon.Default.prototype._getIconUrl
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
+        })
+        setLeafletReady(true)
+      })
+    })
+  }, [])
 
-  // Map click location picker
-  const LocationPicker = ({ location, setLocation, setAddress }) => {
-    const map = useMapEvents({
-      click: async (e) => {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-        setLocation([lat, lon]);
+  // Get user location
+  useEffect(() => {
+    if (open) {
+      navigator.geolocation.getCurrentPosition(
+        pos => setLocation([pos.coords.latitude, pos.coords.longitude]),
+        () => {}
+      )
+    }
+  }, [open])
 
-        try {
-          const res = await fetch(
-            `https://api.maptiler.com/geocoding/${lon},${lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-          );
-          const data = await res.json();
-          setAddress(data.features?.[0]?.place_name || "Address not found");
-        } catch (err) {
-          console.error(err);
-          setAddress("Error fetching address");
-        }
-      },
-    });
-
-    if (!LeafletReady) return null;
-
-    return (
-      <Marker
-        position={location}
-        draggable={true}
-        eventHandlers={{
-          dragend: async (e) => {
-            const marker = e.target;
-            const pos = marker.getLatLng();
-            setLocation([pos.lat, pos.lng]);
-
-            try {
-              const res = await fetch(
-                `https://api.maptiler.com/geocoding/${pos.lng},${pos.lat}.json?key=U61Q3cnFHasU5kc4OEcv`
-              );
-              const data = await res.json();
-              setAddress(data.features?.[0]?.place_name || "Address not found");
-            } catch (err) {
-              console.error(err);
-              setAddress("Error fetching address");
-            }
-          },
-        }}
-      />
-    );
-  };
-
-  const fetchSuggestions = async (query) => {
-    if (!query) return [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const searchLocation = useCallback(debounce(async (q) => {
+    if (q.length < 3) return setSuggestions([])
     try {
-      const res = await fetch(
-        `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=U61Q3cnFHasU5kc4OEcv&limit=5`
-      );
-      const data = await res.json();
-      return data.features.map(place => ({
-        label: place.place_name,
-        lat: place.geometry.coordinates[1],
-        lon: place.geometry.coordinates[0],
-      }));
-    } catch (err) {
-      console.error(err);
-      return [];
+      const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${MAPTILER_KEY}&limit=5`)
+      const data = await res.json()
+      setSuggestions(data.features?.map(f => ({
+        label: f.place_name,
+        lat: f.geometry.coordinates[1],
+        lng: f.geometry.coordinates[0]
+      })) || [])
+    } catch { setSuggestions([]) }
+  }), [])
+
+  const selectSuggestion = (s) => {
+    setLocation([s.lat, s.lng])
+    setAddress(s.label)
+    setSearch(s.label)
+    setSuggestions([])
+  }
+
+  const handleSave = async () => {
+    if (!user || !treeName.trim() || !photo) {
+      setError('Please fill tree name and capture a photo')
+      return
     }
-  };
+    setSaving(true)
+    setError(null)
 
-  const debouncedSearch = debounce(async (value) => {
-    if (value.length > 2) {
-      const results = await fetchSuggestions(value);
-      setSuggestions(results);
-    } else {
-      setSuggestions([]);
+    try {
+      // Upload photo
+      const photoBlob = await fetch(photo).then(r => r.blob())
+      const photoPath = `trees/${user.id}/${Date.now()}.jpg`
+      const { error: uploadErr } = await supabase.storage.from('tree-photos').upload(photoPath, photoBlob, { contentType: 'image/jpeg' })
+      if (uploadErr) throw uploadErr
+      const { data: { publicUrl: photoUrl } } = supabase.storage.from('tree-photos').getPublicUrl(photoPath)
+
+      // Insert tree
+      const { data: tree, error: treeErr } = await supabase
+        .from('trees')
+        .insert({
+          user_id: user.id,
+          tree_name: treeName.trim(),
+          description: description.trim() || null,
+          latitude: location[0],
+          longitude: location[1],
+          address: address || null,
+          photo_url: photoUrl,
+          status: 'pending'
+        })
+        .select()
+        .single()
+      if (treeErr) throw treeErr
+
+      // Generate QR
+      try {
+        const qrData = await QRCode.toDataURL(`${window.location.origin}/tree/${tree.id}`, { width: 300 })
+        const qrBlob = await fetch(qrData).then(r => r.blob())
+        const qrPath = `${tree.id}.png`
+        await supabase.storage.from('qr-codes').upload(qrPath, qrBlob, { contentType: 'image/png', upsert: true })
+        const { data: { publicUrl: qrUrl } } = supabase.storage.from('qr-codes').getPublicUrl(qrPath)
+        await supabase.from('trees').update({ qr_code_url: qrUrl }).eq('id', tree.id)
+        tree.qr_code_url = qrUrl
+      } catch {}
+
+      // Update profile
+      await supabase.from('profiles').update({ trees_planted: (profile?.trees_planted || 0) + 1 }).eq('id', user.id)
+
+      setSuccess(true)
+      onTreeAdded?.(tree)
+      setTimeout(() => { reset(); setOpen(false) }, 1500)
+    } catch (e) {
+      setError(e.message || 'Failed to save')
+    } finally {
+      setSaving(false)
     }
-  }, 300);
+  }
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    debouncedSearch(value);
-  };
+  const reset = () => {
+    setTreeName('')
+    setDescription('')
+    setPhoto(null)
+    setAddress('')
+    setSearch('')
+    setSuggestions([])
+    setError(null)
+    setSuccess(false)
+  }
 
-  const handleSelectSuggestion = (s) => {
-    setTreeLocation([s.lat, s.lon]);
-    setTreeAddress(s.label);
-    setSearchQuery(s.label);
-    setSuggestions([]);
-  };
-
-  const handlePhotoCapture = (imageData) => {
-    setCapturedPhoto(imageData);
-    const now = new Date();
-    setPhotoTimestamp(now.toLocaleString());
-    setShowCamera(false);
-  };
-
-  const handleRemovePhoto = () => {
-    setCapturedPhoto(null);
-    setPhotoTimestamp(null);
-  };
-
-  const handleSave = () => {
-    console.log("Tree Data:", {
-      treeName: document.getElementById("treeName").value,
-      userName: document.getElementById("userName").value,
-      description: value,
-      location: treeLocation,
-      address: treeAddress,
-      photo: capturedPhoto,
-      photoTimestamp: photoTimestamp,
-    });
-    setOpen(false);
-  };
+  const LocationPicker = leafletReady && LeafletComponents ? ({ loc, setLoc, setAddr }) => {
+    const { useMapEvents, Marker } = LeafletComponents
+    
+    function Picker() {
+      useMapEvents({
+        click: async (e) => {
+          setLoc([e.latlng.lat, e.latlng.lng])
+          try {
+            const res = await fetch(`https://api.maptiler.com/geocoding/${e.latlng.lng},${e.latlng.lat}.json?key=${MAPTILER_KEY}`)
+            const data = await res.json()
+            setAddr(data.features?.[0]?.place_name || '')
+          } catch {}
+        }
+      })
+      return loc ? <Marker position={loc} /> : null
+    }
+    return <Picker />
+  } : null
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="flex flex-col gap-0 p-0 sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="border-b px-6 py-4 text-base">
-            Add a New Tree
-          </DialogTitle>
+    <Dialog open={open} onOpenChange={v => !saving && (v ? null : (reset(), setOpen(false)))}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle>Add a New Tree</DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto px-6 pt-4 pb-6">
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div className="space-y-2">
-              <Label>User Name</Label>
-              <Input id="userName" placeholder="Your name" required />
-            </div>
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {success && <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">Tree submitted! Pending verification.</div>}
+          {error && <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">{error}</div>}
 
-            <div className="space-y-2">
-              <Label>Tree Name</Label>
-              <Input id="treeName" placeholder="Neem, Banyan, etc." required />
-            </div>
+          <div>
+            <Label>Your Name</Label>
+            <Input value={profile?.full_name || user?.email || ''} readOnly className="bg-gray-50" />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                maxLength={maxLength}
-                onChange={handleChange}
-                placeholder="Details about the tree..."
-              />
-              <p className="text-right text-xs text-muted-foreground">
-                {limit - characterCount} characters left
-              </p>
-            </div>
+          <div>
+            <Label>Tree Name *</Label>
+            <Input value={treeName} onChange={e => setTreeName(e.target.value)} placeholder="Neem, Banyan, Mango..." disabled={saving} />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Tree Photo</Label>
-              
-              {!showCamera && !capturedPhoto && (
-                <Button
-                  type="button"
-                  onClick={() => setShowCamera(true)}
-                  variant="outline"
-                  className="w-full flex items-center gap-2"
-                >
-                  <Camera size={18} />
-                  Open Camera
-                </Button>
-              )}
+          <div>
+            <Label>Description</Label>
+            <Textarea value={description} onChange={e => setDescription(e.target.value)} maxLength={180} placeholder="Details about the tree..." disabled={saving} />
+            <p className="text-right text-xs text-gray-400">{180 - description.length} left</p>
+          </div>
 
-              {showCamera && (
-                <LiveCamera
-                  onCapture={handlePhotoCapture}
-                  onClose={() => setShowCamera(false)}
-                />
-              )}
-
-              {capturedPhoto && (
-                <div className="space-y-2">
-                  <div className="relative">
-                    <img
-                      src={capturedPhoto}
-                      alt="Captured tree"
-                      className="w-full h-64 object-cover rounded-lg border-2 border-green-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemovePhoto}
-                      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors shadow-lg"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <p className="text-sm text-green-800">
-                      <strong>Photo captured:</strong> {photoTimestamp}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => setShowCamera(true)}
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                  >
-                    Retake Photo
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 relative z-50">
-              <Label>Search Tree Location</Label>
-              <Input
-                type="text"
-                placeholder="Search for park, zoo, office..."
-                value={searchQuery}
-                onChange={handleInputChange}
-              />
-              {suggestions.length > 0 && (
-                <ul className="absolute w-full bg-white border rounded mt-1 max-h-40 overflow-auto z-50 shadow-lg">
-                  {suggestions.map((s, idx) => (
-                    <li
-                      key={idx}
-                      onClick={() => handleSelectSuggestion(s)}
-                      className="p-2 cursor-pointer hover:bg-gray-100"
-                    >
-                      {s.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Selected Address</Label>
-              <Input
-                value={treeAddress}
-                readOnly
-                placeholder="Selected address will appear here"
-                className="bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Coordinates</Label>
-              <Input
-                value={`${treeLocation[0]}, ${treeLocation[1]}`}
-                readOnly
-                className="bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-
-            {LeafletReady && (
-              <div className="space-y-2">
-                <Label>Pick Tree Location on Map</Label>
-                <p className="text-xs text-muted-foreground">
-                  Click on the map or drag the marker to select location
-                </p>
-
-                <MapContainer
-                  center={treeLocation}
-                  zoom={13}
-                  style={{ height: "200px", width: "100%" }}
-                >
-                  <TileLayer
-                    url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=U61Q3cnFHasU5kc4OEcv`}
-                    attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> © OpenStreetMap contributors'
-                  />
-                  <LocationPicker
-                    location={treeLocation}
-                    setLocation={setTreeLocation}
-                    setAddress={setTreeAddress}
-                  />
-                </MapContainer>
+          <div>
+            <Label>Photo *</Label>
+            {!showCamera && !photo && (
+              <Button type="button" variant="outline" className="w-full" onClick={() => setShowCamera(true)} disabled={saving}>
+                <Camera className="mr-2 h-4 w-4" /> Take Photo
+              </Button>
+            )}
+            {showCamera && <LiveCamera onCapture={img => { setPhoto(img); setShowCamera(false) }} onClose={() => setShowCamera(false)} />}
+            {photo && (
+              <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo} alt="Tree" className="w-full h-48 object-cover rounded-lg border-2 border-green-500" />
+                {!saving && (
+                  <button onClick={() => setPhoto(null)} className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700">
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             )}
-          </form>
+          </div>
+
+          <div className="relative">
+            <Label>Search Location</Label>
+            <Input value={search} onChange={e => { setSearch(e.target.value); searchLocation(e.target.value) }} placeholder="Search park, zoo..." disabled={saving} />
+            {suggestions.length > 0 && (
+              <ul className="absolute z-50 w-full bg-white border rounded-lg mt-1 max-h-40 overflow-auto shadow-lg">
+                {suggestions.map((s, i) => (
+                  <li key={i} onClick={() => selectSuggestion(s)} className="p-2 hover:bg-gray-100 cursor-pointer text-sm">{s.label}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <Label>Address</Label>
+            <Input value={address} readOnly className="bg-gray-50" placeholder="Click map or search" />
+          </div>
+
+          <div>
+            <Label>Coordinates</Label>
+            <Input value={`${location[0].toFixed(6)}, ${location[1].toFixed(6)}`} readOnly className="bg-gray-50 font-mono text-sm" />
+          </div>
+
+          {leafletReady && LeafletComponents && (
+            <div>
+              <Label>Pick on Map *</Label>
+              <p className="text-xs text-gray-400 mb-2">Click to select location</p>
+              <LeafletComponents.MapContainer center={location} zoom={15} style={{ height: 200, width: '100%' }} className="rounded-lg border">
+                <LeafletComponents.TileLayer url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`} />
+                <LocationPicker loc={location} setLoc={setLocation} setAddr={setAddress} />
+              </LeafletComponents.MapContainer>
+            </div>
+          )}
         </div>
 
-        <DialogFooter className="border-t px-6 py-4">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+        <DialogFooter className="px-6 py-4 border-t">
+          <Button variant="outline" onClick={() => { reset(); setOpen(false) }} disabled={saving}>Cancel</Button>
+          <Button onClick={handleSave} disabled={saving || success} className="bg-green-600 hover:bg-green-700">
+            {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : success ? 'Done!' : 'Submit'}
           </Button>
-          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
