@@ -1,116 +1,19 @@
-"use client";
-import { useMemo } from "react";
-import { motion } from "motion/react";
-import DottedMap from "dotted-map";
+'use client'
 
-import { useTheme } from "next-themes";
+// Lightweight world map - just a simple decorative background
+// Removed heavy animations that caused freezing
 
-const PointCircle = ({ cx, cy, color }) => (
-  <g>
-    <circle cx={cx} cy={cy} r="2" fill={color} />
-    <circle cx={cx} cy={cy} r="2" fill={color} opacity="0.5">
-      <animate
-        attributeName="r"
-        from="2"
-        to="8"
-        dur="1.5s"
-        begin="0s"
-        repeatCount="indefinite" />
-      <animate
-        attributeName="opacity"
-        from="0.5"
-        to="0"
-        dur="1.5s"
-        begin="0s"
-        repeatCount="indefinite" />
-    </circle>
-  </g>
-);
-
-export default function WorldMap({
-  dots = [],
-  lineColor = "#45B649"
-}) {
-  const map = new DottedMap({ height: 100, grid: "diagonal" });
-
-  const { theme } = useTheme();
-
-  const svgMap = map.getSVG({
-    radius: 0.22,
-    color: theme === "dark" ? "#FFFFFF40" : "#00000040",
-    shape: "circle",
-    backgroundColor: theme === "dark" ? "black" : "white",
-  });
-
-  const processedDots = useMemo(() => {
-    const projectPoint = (lat, lng) => {
-      const x = (lng + 180) * (800 / 360);
-      const y = (90 - lat) * (400 / 180);
-      return { x, y };
-    };
-
-    const createCurvedPath = (start, end) => {
-      const midX = (start.x + end.x) / 2;
-      const midY = Math.min(start.y, end.y) - 50;
-      return `M ${start.x} ${start.y} Q ${midX} ${midY} ${end.x} ${end.y}`;
-    };
-
-    return dots.map(dot => ({ ...dot, startPoint: projectPoint(dot.start.lat, dot.start.lng), endPoint: projectPoint(dot.end.lat, dot.end.lng), path: createCurvedPath(projectPoint(dot.start.lat, dot.start.lng), projectPoint(dot.end.lat, dot.end.lng)) }));
-
-  }, [dots]);
-
+export default function WorldMap() {
   return (
-    <div
-      className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg  relative font-sans">
-      <img
-        src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
-        className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
-        alt="world map"
-        height="495"
-        width="1056"
-        draggable={false} />
-      <svg
-        viewBox="0 0 800 400"
-        className="w-full h-full absolute inset-0 pointer-events-none select-none">
-        {processedDots.map((dot, i) => {
-          return (
-            <g key={`path-group-${i}`}>
-              <motion.path
-                d={dot.path}
-                fill="none"
-                stroke="url(#path-gradient)"
-                strokeWidth="1"
-                initial={{
-                  pathLength: 0,
-                }}
-                animate={{
-                  pathLength: 1,
-                }}
-                transition={{
-                  duration: 1,
-                  delay: 0.5 * i,
-                  ease: "easeOut",
-                }} />
-            </g>
-          );
-        })}
-
+    <div className="w-full h-full opacity-10 pointer-events-none select-none">
+      <svg viewBox="0 0 800 400" className="w-full h-full">
         <defs>
-          <linearGradient id="path-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="5%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="95%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" fill="currentColor" className="text-green-600" />
+          </pattern>
         </defs>
-
-        {processedDots.map((dot, i) => (
-          <g key={`points-group-${i}`}>
-            <PointCircle cx={dot.startPoint.x} cy={dot.startPoint.y} color={lineColor} />
-            <PointCircle cx={dot.endPoint.x} cy={dot.endPoint.y} color={lineColor} />
-          </g>
-        ))}
+        <rect width="800" height="400" fill="url(#grid)" />
       </svg>
     </div>
-  );
+  )
 }

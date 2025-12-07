@@ -80,6 +80,7 @@ const Slide = ({
                 ? "translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)"
                 : "none",
           }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="absolute inset-0 w-[120%] h-[120%] object-cover opacity-100 transition-opacity duration-600 ease-in-out"
             style={{
