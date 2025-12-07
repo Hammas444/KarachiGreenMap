@@ -38,7 +38,7 @@ function MapTilerMap({ center = [67.0011, 24.8607], zoom = 13, trees = [] }) {
 
       // User location marker
       const el = document.createElement('div')
-      el.innerHTML = `<img src="/TreeMarker.gif" alt="You" style="width:50px;height:50px;object-fit:contain;transform:translate(-50%,-100%)"/>`
+      // el.innerHTML = `<img src="/TreeMarker.gif" alt="You" style="width:50px;height:50px;object-fit:contain;transform:translate(-50%,-100%)"/>`
       
       new Marker({ draggable: true, element: el })
         .setLngLat(mapCenter)
