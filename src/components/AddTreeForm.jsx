@@ -301,8 +301,8 @@ export default function AddTreeDialog({ open, setOpen, onTreeAdded }) {
         </div>
 
         <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="outline" onClick={() => { reset(); setOpen(false) }} disabled={saving}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving || success} className="bg-green-600 hover:bg-green-700">
+          <Button type="button" variant="outline" onClick={() => { reset(); setOpen(false) }} disabled={saving}>Cancel</Button>
+          <Button type="button" onClick={handleSave} disabled={saving || success} className="bg-green-600 hover:bg-green-700">
             {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : success ? 'Done!' : 'Submit'}
           </Button>
         </DialogFooter>
